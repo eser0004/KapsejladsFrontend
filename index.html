@@ -2,9 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sejlbaade</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+<h1>Sejlbåde Administration</h1>
+<div id="form-container">
+    <input type="text" id="name" placeholder="Bådens navn" />
+    <select id="type">
+        <option value="MINDRE_END_25FOD">Mindre end 25 fod</option>
+        <option value="MELLEM_25_40FOD">Mellem 25-40 fod</option>
+        <option value="LAANGERE_END_40FOD">Længere end 40 fod</option>
+    </select>
+    <button onclick="createSejlbaad()">Opret</button>
 
+
+</div>
+<div id="boats-container"></div>
+<h2>Kapsejladser</h2>
+<button onclick="generateKapsejladser()">Generer Kapsejladser</button>
+<div id="race-container"></div>
+
+<script src="js/script.js"></script>
 </body>
 </html>
