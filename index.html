@@ -3,26 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sejlbaade</title>
+    <title>Kapsejlads Administration</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<h1>Sejlbåde Administration</h1>
-<div id="form-container">
-    <input type="text" id="name" placeholder="Bådens navn" />
-    <select id="type">
-        <option value="MINDRE_END_25FOD">Mindre end 25 fod</option>
-        <option value="MELLEM_25_40FOD">Mellem 25-40 fod</option>
-        <option value="LAANGERE_END_40FOD">Længere end 40 fod</option>
-    </select>
-    <button onclick="createSejlbaad()">Opret</button>
+<h1>Kapsejlads Administration</h1>
 
-
+<!-- Navigation -->
+<div class="navigation">
+    <button id="showSejlbaade">Vis Sejlbåde</button>
+    <button id="showKapsejladser">Vis Kapsejladser</button>
+    <button id="showDeltagere">Vis Deltagere</button>
 </div>
-<div id="boats-container"></div>
-<h2>Kapsejladser</h2>
-<button onclick="generateKapsejladser()">Generer Kapsejladser</button>
-<div id="race-container"></div>
+
+<!-- Sejlbåde -->
+<section id="sejlbaadeSection" class="hidden">
+    <h2>Opret Sejlbåd</h2>
+    <form id="createSejlbaadForm">
+        <label for="baadNavn">Bådens Navn:</label>
+        <input type="text" id="baadNavn" name="navn" required>
+        <label for="baadType">Bådtype:</label>
+        <select id="baadType" name="baadType">
+            <option value="MINDRE_END_25FOD">Mindre end 25 fod</option>
+            <option value="MELLEM_25_40FOD">Mellem 25-40 fod</option>
+            <option value="LAANGERE_END_40FOD">Længere end 40 fod</option>
+        </select>
+        <button type="submit">Opret Sejlbåd</button>
+    </form>
+    <h2>Sejlbåde</h2>
+    <ul id="sejlbaadeList"></ul>
+</section>
+
+<!-- Kapsejladser -->
+<section id="kapsejladserSection" class="hidden">
+    <h2>Opret Kapsejlads</h2>
+    <form id="createKapsejladsForm">
+        <label for="kapsejladsDato">Dato:</label>
+        <input type="date" id="kapsejladsDato" name="dato" required>
+        <label for="kapsejladsBaadType">Bådtype:</label>
+        <select id="kapsejladsBaadType" name="baadType">
+            <option value="MINDRE_END_25FOD">Mindre end 25 fod</option>
+            <option value="MELLEM_25_40FOD">Mellem 25 og 40 fod</option>
+            <option value="LAANGERE_END_40FOD">Længere end 40 fod</option>
+        </select>
+        <label for="antalStartendeBaade">Antal Startende Både:</label>
+        <input type="number" id="antalStartendeBaade" name="antalStartendeBaade" required>
+        <button type="submit">Opret Kapsejlads</button>
+    </form>
+    <h2>Kapsejladser</h2>
+    <div id="kapsejladserList"></div> <!-- Brug en div for mere fleksibilitet -->
+</section>
+
+
+<!-- Deltagere -->
+<section id="deltagereSection" class="hidden">
+    <h2>Opret Deltager</h2>
+    <form id="createDeltagerForm">
+        <label for="kapsejladsId">Kapsejlads ID:</label>
+        <input type="number" id="kapsejladsId" name="kapsejladsId" required>
+        <label for="sejlbaadId">Sejlbåd ID:</label>
+        <input type="number" id="sejlbaadId" name="sejlbaadId" required>
+        <label for="point">Point:</label>
+        <input type="number" id="point" name="point" required>
+        <button type="submit">Opret Deltager</button>
+    </form>
+    <h2>Deltagere</h2>
+    <ul id="deltagereList"></ul>
+</section>
 
 <script src="js/script.js"></script>
 </body>

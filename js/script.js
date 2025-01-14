@@ -1,167 +1,204 @@
-const apiUrl = "http://localhost:8080/api/sejlbaade";
+// Base URL
+const apiBaseUrl = "http://localhost:8080/api";
 
-function fetchSejlbaade() {
-    fetch("http://localhost:8080/api/sejlbaade")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Fejl ved hentning af sejlbåde");
-            }
-            return response.json();
-        })
-        .then(data => {
-            const container = document.getElementById('boats-container');
-            container.innerHTML = ''; // Ryd tidligere indhold
-            data.forEach(boat => {
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <div style="flex: 1; display: flex; align-items: center;">
-                        <strong>${boat.navn}</strong>
-                        <span style="margin-left: 10px;">(${formatBaadType(boat.baadType)})</span>
-                    </div>
-                    <div>
-                        <button onclick="editSejlbaad(${boat.id}, '${boat.navn}', '${boat.baadType}')">Rediger</button>
-                        <button onclick="deleteSejlbaad(${boat.id})">Slet</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        })
-        .catch(error => console.error("Fejl ved hentning af både:", error));
-}
+// DOM Elements
+const sejlbaadeList = document.getElementById('sejlbaadeList');
+const kapsejladsList = document.getElementById('kapsejladsList');
+const deltagerList = document.getElementById('deltagereList');
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchSejlbaade(); // Henter alle både fra backend, når siden indlæses
+// Toggle sections
+document.getElementById('showSejlbaade').addEventListener('click', () => toggleSection('sejlbaadeSection'));
+
+document.getElementById('showKapsejladser').addEventListener('click', () => {
+    toggleSection('kapsejladserSection');
+    fetchKapsejladser();
 });
 
+document.getElementById('showDeltagere').addEventListener('click', () => toggleSection('deltagereSection'));
 
 
-function createSejlbaad() {
-    const name = document.getElementById('name').value;
-    const type = document.getElementById('type').value;
+function toggleSection(sectionId) {
+    document.querySelectorAll('section').forEach(section => section.classList.add('hidden'));
+    document.getElementById(sectionId).classList.remove('hidden');
+}
 
-    fetch("http://localhost:8080/api/sejlbaade", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ navn: name, baadType: type }),
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Fejl ved oprettelse af sejlbåd");
-            }
-            return response.json();
-        })
+// Fetch Sejlbåde
+function fetchSejlbaade() {
+    fetch(`${apiBaseUrl}/sejlbaade`)
+        .then(response => response.json())
         .then(data => {
-            console.log("Sejlbåd oprettet:", data);
-            fetchSejlbaade(); // Genindlæs listen
-        })
-        .catch(error => console.error("Fejl:", error));
-
-
-
-
+            sejlbaadeList.innerHTML = '';
+            data.forEach(boat => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${boat.id}, Navn: ${boat.navn}, Type: ${boat.baadType}`;
+                sejlbaadeList.appendChild(li);
+            });
+        });
 }
-function editSejlbaad(id, currentName, currentType) {
-    const container = document.getElementById('boats-container');
-    const editForm = document.createElement('div');
-    editForm.innerHTML = `
-        <input type="text" id="edit-name-${id}" value="${currentName}" />
-        <select id="edit-type-${id}">
-            <option value="MINDRE_END_25FOD" ${currentType === "MINDRE_END_25FOD" ? "selected" : ""}>Mindre end 25 fod</option>
-            <option value="MELLEM_25_40FOD" ${currentType === "MELLEM_25_40FOD" ? "selected" : ""}>Mellem 25-40 fod</option>
-            <option value="LAANGERE_END_40FOD" ${currentType === "LAANGERE_END_40FOD" ? "selected" : ""}>Længere end 40 fod</option>
-        </select>
-        <button onclick="updateSejlbaad(${id})">Gem</button>
-        <button onclick="fetchSejlbaade()">Annuller</button>
-    `;
-    container.innerHTML = ''; // Tøm containeren for at vise redigeringsformularen
-    container.appendChild(editForm);
-}
-function updateSejlbaad(id) {
-    const name = document.getElementById(`edit-name-${id}`).value;
-    const type = document.getElementById(`edit-type-${id}`).value;
-
-    fetch(`http://localhost:8080/api/sejlbaade/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ navn: name, baadType: type }),
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Fejl ved opdatering af sejlbåd");
-            }
-            return response.json();
-        })
-        .then(() => {
-            fetchSejlbaade(); // Genindlæs listen
-        })
-        .catch(error => console.error("Fejl:", error));
-}
-
-div.innerHTML = `
-    <strong>${boat.navn}</strong>
-    <span>${formatBaadType(boat.baadType)}</span>
-    <div>
-        <button onclick="editSejlbaad(${boat.id}, '${boat.navn}', '${boat.baadType}')">Rediger</button>
-        <button onclick="deleteSejlbaad(${boat.id})">Slet</button>
-    </div>
-`;
-
 function formatBaadType(baadType) {
     switch (baadType) {
-        case "MINDRE_END_25FOD":
-            return "Mindre end 25 fod";
-        case "MELLEM_25_40FOD":
-            return "Mellem 25-40 fod";
-        case "LAANGERE_END_40FOD":
-            return "Længere end 40 fod";
-        default:
-            return "Ukendt type"; // Håndter ukendte typer
+        case "MINDRE_END_25FOD": return "Mindre end 25 fod";
+        case "MELLEM_25_40FOD": return "Mellem 25-40 fod";
+        case "LAANGERE_END_40FOD": return "Længere end 40 fod";
+        default: return "Ukendt type";
     }
 }
 
-function deleteSejlbaad(id) {
-    fetch(`${apiUrl}/${id}`, { method: 'DELETE' }).then(() => {
-        fetchSejlbaade();
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    fetchSejlbaade();
-});
-
-document.addEventListener('DOMContentLoaded', fetchSejlbaade);
-const raceApiUrl = "http://localhost:8080/api/kapsejladser";
-
-function fetchRaces() {
-    fetch(raceApiUrl)
-        .then(response => response.json())
+// Fetch Kapsejladser
+function fetchKapsejladser() {
+    fetch(`${apiBaseUrl}/kapsejladser`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Fejl ved hentning af kapsejladser");
+            }
+            return response.json();
+        })
         .then(data => {
-            const container = document.getElementById('race-container');
-            container.innerHTML = '';
-            data.forEach(race => {
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <strong>${race.dato}</strong> - ${race.baadType}
-                    <p>Antal startende både: ${race.antalStartendeBaade}</p>
+            console.log("Kapsejladser hentet fra backend:", data); // Debugging
+            const kapsejladsList = document.getElementById('kapsejladserList');
+            kapsejladsList.innerHTML = ''; // Ryd tidligere indhold
+
+            // Iterer gennem kapsejladserne og vis dem
+            data.forEach(kapsejlads => {
+                const kapsejladsDiv = document.createElement('div');
+                kapsejladsDiv.classList.add('kapsejlads-item'); // Tilføj styling
+                kapsejladsDiv.innerHTML = `
+                    <p><strong>ID:</strong> ${kapsejlads.id}</p>
+                    <p><strong>Dato:</strong> ${kapsejlads.dato}</p>
+                    <p><strong>Bådtype:</strong> ${formatBaadType(kapsejlads.baadType)}</p>
+                    <p><strong>Startende Både:</strong> ${kapsejlads.antalStartendeBaade}</p>
                 `;
-                container.appendChild(div);
+                kapsejladsList.appendChild(kapsejladsDiv);
             });
         })
         .catch(error => console.error("Fejl ved hentning af kapsejladser:", error));
 }
 
-function generateKapsejladser() {
-    fetch(`${raceApiUrl}/generate`, { method: 'POST' })
+
+
+
+// Fetch Deltagere
+function fetchDeltagere() {
+    fetch(`${apiBaseUrl}/deltagere`)
         .then(response => response.json())
-        .then(() => fetchRaces())
-        .catch(error => console.error("Fejl ved generering af kapsejladser:", error));
+        .then(data => {
+            deltagerList.innerHTML = '';
+            data.forEach(participant => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${participant.id}, Kapsejlads: ${participant.kapsejlads.dato}, Sejlbåd: ${participant.sejlbaad.navn}, Point: ${participant.point}`;
+                deltagerList.appendChild(li);
+            });
+        });
 }
 
-// Hent kapsejladser, når siden indlæses
-document.addEventListener('DOMContentLoaded', () => {
-    fetchRaces();
+// Initial Fetch
+fetchSejlbaade();
+fetchKapsejladser();
+fetchDeltagere();
+
+
+document.getElementById('createKapsejladsForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const dato = document.getElementById('kapsejladsDato').value;
+    const baadType = document.getElementById('kapsejladsBaadType').value;
+    const antalStartendeBaade = parseInt(document.getElementById('antalStartendeBaade').value);
+
+    fetch(`${apiBaseUrl}/kapsejladser`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dato, baadType, antalStartendeBaade }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Fejl ved oprettelse af kapsejlads");
+            }
+            return response.json();
+        })
+        .then(() => fetchKapsejladser())
+        .catch(error => console.error("Fejl:", error));
 });
+
+
+document.getElementById('createKapsejladsForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const dato = document.getElementById('kapsejladsDato').value;
+    const baadType = document.getElementById('kapsejladsBaadType').value;
+    const antalStartendeBaade = parseInt(document.getElementById('antalStartendeBaade').value);
+
+    fetch(`${apiBaseUrl}/kapsejladser`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dato, baadType, antalStartendeBaade }),
+    })
+        .then(() => fetchKapsejladser())
+        .catch(error => console.error("Fejl ved oprettelse af kapsejlads:", error));
+});
+
+document.getElementById('createDeltagerForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const kapsejladsId = parseInt(document.getElementById('kapsejladsId').value);
+    const sejlbaadId = parseInt(document.getElementById('sejlbaadId').value);
+    const point = parseInt(document.getElementById('point').value);
+
+    fetch(`${apiBaseUrl}/deltagere`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kapsejladsId, sejlbaadId, point }),
+    })
+        .then(() => fetchDeltagere())
+        .catch(error => console.error("Fejl ved oprettelse af deltager:", error));
+});
+
+// Update Functions
+function editSejlbaad(id, currentName, currentType) {
+    const newName = prompt("Indtast nyt navn:", currentName);
+    const newType = prompt("Indtast ny type (MINDRE_END_25FOD, MELLEM_25_40FOD, LAANGERE_END_40FOD):", currentType);
+
+    if (newName && newType) {
+        fetch(`${apiBaseUrl}/sejlbaade/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ navn: newName, baadType: newType }),
+        })
+            .then(() => fetchSejlbaade())
+            .catch(error => console.error("Fejl ved opdatering af sejlbåd:", error));
+    }
+}
+
+function updateParticipant(id) {
+    const newPoints = prompt("Indtast nye point:");
+    if (newPoints) {
+        fetch(`${apiBaseUrl}/deltagere/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ point: parseInt(newPoints) }),
+        })
+            .then(() => fetchDeltagere())
+            .catch(error => console.error("Fejl ved opdatering af deltager:", error));
+    }
+}
+
+// Delete Functions
+function deleteSejlbaad(id) {
+    fetch(`${apiBaseUrl}/sejlbaade/${id}`, { method: 'DELETE' })
+        .then(() => fetchSejlbaade())
+        .catch(error => console.error("Fejl ved sletning af sejlbåd:", error));
+}
+
+function deleteParticipant(id) {
+    fetch(`${apiBaseUrl}/deltagere/${id}`, { method: 'DELETE' })
+        .then(() => fetchDeltagere())
+        .catch(error => console.error("Fejl ved sletning af deltager:", error));
+}
+
+// Helpers
+function formatBaadType(baadType) {
+    switch (baadType) {
+        case "MINDRE_END_25FOD": return "Mindre end 25 fod";
+        case "MELLEM_25_40FOD": return "Mellem 25-40 fod";
+        case "LAANGERE_END_40FOD": return "Længere end 40 fod";
+        default: return "Ukendt type";
+    }
+}
+
