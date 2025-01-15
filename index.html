@@ -14,6 +14,9 @@
     <button id="showSejlbaade">Vis Sejlbåde</button>
     <button id="showKapsejladser">Vis Kapsejladser</button>
     <button id="showDeltagere">Vis Deltagere</button>
+    <button id="showMostActiveSejlbaade">Vis Mest Aktive Sejlbåde</button>
+    <button id="deleteAllData">Slet Alle Data</button>
+
 </div>
 
 <!-- Sejlbåde -->
@@ -32,6 +35,8 @@
     </form>
     <h2>Sejlbåde</h2>
     <ul id="sejlbaadeList"></ul>
+    <button id="generateSejlbaadeButton">Generer Sejlbåde</button>
+
 </section>
 
 <!-- Kapsejladser -->
@@ -75,9 +80,24 @@
         <input type="number" id="point" name="point" required>
         <button type="submit">Opret Deltager</button>
     </form>
+
+    <h2>Administrer Deltagere</h2>
+    <button id="generateDeltagereButton">Generer Deltagere</button>
+    <button id="deleteAllDeltagereButton">Slet Alle Deltagere</button>
+
     <h2>Deltagere</h2>
     <ul id="deltagereList"></ul>
 </section>
+
+
+
+</section>
+
+<section id="mostActiveSejlbaadeSection" class="hidden">
+    <h2>Mest Aktive Sejlbåde</h2>
+    <div id="mostActiveSejlbaadeList"></div>
+</section>
+
 
 <script src="js/script.js"></script>
 </body>

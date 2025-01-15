@@ -60,3 +60,14 @@ li {
 .kapsejlads-item p {
     margin: 5px 0;
 }
+.sejlbaad-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.sejlbaad-item p {
+    margin: 5px 0;
+}

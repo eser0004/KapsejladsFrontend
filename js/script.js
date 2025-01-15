@@ -46,7 +46,133 @@ document.getElementById('deleteAllKapsejladser').addEventListener('click', () =>
     }
 });
 
+document.getElementById('deleteAllData').addEventListener('click', () => {
+    if (confirm("Er du sikker på, at du vil slette alle data? Dette vil også nulstille ID'er!")) {
+        fetch(`${apiBaseUrl}/kapsejladser/deleteAllData`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Fejl ved sletning af alle data");
+                }
+                return response.text();
+            })
+            .then(message => {
+                alert(message);
+                fetchSejlbaade(); // Opdater listen over sejlbåde
+                fetchKapsejladser(); // Opdater listen over kapsejladser
+                fetchParticipants(); // Opdater listen over deltagere
+            })
+            .catch(error => console.error("Fejl ved sletning af alle data:", error));
+    }
+});
+document.getElementById('generateSejlbaadeButton').addEventListener('click', () => {
+    const antal = prompt("Hvor mange sejlbåde vil du generere?");
+    if (antal && !isNaN(antal) && parseInt(antal) > 0) {
+        fetch(`${apiBaseUrl}/sejlbaade/generate?antal=${antal}`, { method: 'POST' })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                fetchSejlbaade(); // Opdater listen over sejlbåde
+            })
+            .catch(error => console.error("Fejl ved generering af sejlbåde:", error));
+    } else {
+        alert("Indtast et gyldigt antal sejlbåde.");
+    }
+});
+document.getElementById('generateDeltagereButton').addEventListener('click', () => {
+    const antal = prompt("Hvor mange deltagere vil du generere?");
+    if (antal && !isNaN(antal) && parseInt(antal) > 0) {
+        fetch(`${apiBaseUrl}/deltagere/generate?antal=${antal}`, { method: 'POST' })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                fetchParticipants(); // Opdater listen over deltagere
+            })
+            .catch(error => console.error("Fejl ved generering af deltagere:", error));
+    } else {
+        alert("Indtast et gyldigt antal deltagere.");
+    }
+});
 
+// Opret Deltager
+document.getElementById('createDeltagerForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const kapsejladsId = document.getElementById('kapsejladsId').value;
+    const sejlbaadId = document.getElementById('sejlbaadId').value;
+    const point = document.getElementById('point').value;
+
+    fetch(`${apiBaseUrl}/deltagere`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kapsejladsId, sejlbaadId, point }),
+    })
+        .then(response => response.text())
+        .then(message => {
+            alert(message);
+            fetchParticipants(); // Opdater listen
+        })
+        .catch(error => console.error("Fejl ved oprettelse af deltager:", error));
+});
+
+// Generer Deltagere
+document.getElementById('generateDeltagereButton').addEventListener('click', () => {
+    const antal = prompt("Hvor mange deltagere vil du generere?");
+    if (antal && !isNaN(antal) && parseInt(antal) > 0) {
+        fetch(`${apiBaseUrl}/deltagere/generate?antal=${antal}`, { method: 'POST' })
+            .then(response => response.text())
+            .then(message => {
+                alert(message); // Vis besked fra backend
+                fetchParticipants(); // Opdater listen
+            })
+            .catch(error => console.error("Fejl ved generering af deltagere:", error));
+    } else {
+        alert("Indtast et gyldigt antal deltagere.");
+    }
+});
+
+
+// Slet Alle Deltagere
+document.getElementById('deleteAllDeltagereButton').addEventListener('click', () => {
+    if (confirm("Er du sikker på, at du vil slette alle deltagere?")) {
+        fetch(`${apiBaseUrl}/deltagere`, { method: 'DELETE' })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                fetchParticipants(); // Opdater listen
+            })
+            .catch(error => console.error("Fejl ved sletning af deltagere:", error));
+    }
+});
+
+// Hent Deltagere
+function fetchParticipants() {
+    fetch(`${apiBaseUrl}/deltagere`)
+        .then(response => response.json())
+        .then(data => {
+            const deltagerList = document.getElementById('deltagereList');
+            deltagerList.innerHTML = ''; // Ryd tidligere indhold
+
+            if (data.length === 0) {
+                deltagerList.innerHTML = "<li>Ingen deltagere fundet.</li>";
+                return;
+            }
+
+            data.forEach(deltager => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <p><strong>ID:</strong> ${deltager.id}</p>
+                    <p><strong>Kapsejlads:</strong> ${deltager.kapsejlads.dato} (${deltager.kapsejlads.baadType})</p>
+                    <p><strong>Sejlbåd:</strong> ${deltager.sejlbaad.navn}</p>
+                    <p><strong>Point:</strong> ${deltager.point}</p>
+                `;
+                deltagerList.appendChild(li);
+            });
+        })
+        .catch(error => console.error("Fejl ved hentning af deltagere:", error));
+}
+
+// Initial Hentning af Deltagere
+fetchParticipants();
 
 
 function toggleSection(sectionId) {
@@ -109,19 +235,42 @@ function fetchKapsejladser() {
 
 
 
-// Fetch Deltagere
-function fetchDeltagere() {
-    fetch(`${apiBaseUrl}/deltagere`)
-        .then(response => response.json())
+function fetchMostActiveSejlbaade() {
+    fetch(`${apiBaseUrl}/deltagere/most-active`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Fejl ved hentning af mest aktive sejlbåde");
+            }
+            return response.json();
+        })
         .then(data => {
-            deltagerList.innerHTML = '';
-            data.forEach(participant => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${participant.id}, Kapsejlads: ${participant.kapsejlads.dato}, Sejlbåd: ${participant.sejlbaad.navn}, Point: ${participant.point}`;
-                deltagerList.appendChild(li);
+            const mostActiveSejlbaadeList = document.getElementById('mostActiveSejlbaadeList');
+            mostActiveSejlbaadeList.innerHTML = ''; // Ryd tidligere indhold
+
+            if (data.length === 0) {
+                mostActiveSejlbaadeList.innerHTML = "<p>Ingen sejlbåde har deltaget endnu.</p>";
+                return;
+            }
+
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('sejlbaad-item'); // Tilføj styling
+                div.innerHTML = `
+                    <p><strong>Navn:</strong> ${item.navn}</p>
+                    <p><strong>Antal Deltagelser:</strong> ${item.antalDeltagelser}</p>
+                `;
+                mostActiveSejlbaadeList.appendChild(div);
             });
-        });
+        })
+        .catch(error => console.error("Fejl ved hentning af mest aktive sejlbåde:", error));
 }
+
+// Tilføj knap for at hente mest aktive sejlbåde
+document.getElementById('showMostActiveSejlbaade').addEventListener('click', () => {
+    toggleSection('mostActiveSejlbaadeSection');
+    fetchMostActiveSejlbaade();
+});
+
 
 // Initial Fetch
 fetchSejlbaade();
