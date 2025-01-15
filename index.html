@@ -43,16 +43,24 @@
         <label for="kapsejladsBaadType">Bådtype:</label>
         <select id="kapsejladsBaadType" name="baadType">
             <option value="MINDRE_END_25FOD">Mindre end 25 fod</option>
-            <option value="MELLEM_25_40FOD">Mellem 25 og 40 fod</option>
+            <option value="MELLEM_25_40FOD">Mellem 25-40 fod</option>
             <option value="LAANGERE_END_40FOD">Længere end 40 fod</option>
         </select>
         <label for="antalStartendeBaade">Antal Startende Både:</label>
         <input type="number" id="antalStartendeBaade" name="antalStartendeBaade" required>
         <button type="submit">Opret Kapsejlads</button>
     </form>
+
+    <h2>Opret og Administrer Hele Sæsonens Kapsejladser</h2>
+    <div>
+        <button id="generateAllKapsejladser">Opret Alle Kapsejladser for Sæsonen</button>
+        <button id="deleteAllKapsejladser">Slet Alle Kapsejladser</button>
+    </div>
+
     <h2>Kapsejladser</h2>
-    <div id="kapsejladserList"></div> <!-- Brug en div for mere fleksibilitet -->
+    <div id="kapsejladserList"></div>
 </section>
+
 
 
 <!-- Deltagere -->

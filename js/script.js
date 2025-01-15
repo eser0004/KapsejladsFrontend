@@ -15,6 +15,38 @@ document.getElementById('showKapsejladser').addEventListener('click', () => {
 });
 
 document.getElementById('showDeltagere').addEventListener('click', () => toggleSection('deltagereSection'));
+document.getElementById('generateAllKapsejladser').addEventListener('click', () => {
+    fetch(`${apiBaseUrl}/kapsejladser/generate`, { method: 'POST' })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Fejl ved oprettelse af alle kapsejladser");
+            }
+            return response.text();
+        })
+        .then(message => {
+            alert(message); // Vis besked
+            fetchKapsejladser(); // Opdater listen
+        })
+        .catch(error => console.error("Fejl ved oprettelse af alle kapsejladser:", error));
+});
+document.getElementById('deleteAllKapsejladser').addEventListener('click', () => {
+    if (confirm("Er du sikker på, at du vil slette alle kapsejladser?")) {
+        fetch(`${apiBaseUrl}/kapsejladser/deleteAll`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Fejl ved sletning af alle kapsejladser");
+                }
+                return response.text();
+            })
+            .then(message => {
+                alert(message); // Vis besked
+                fetchKapsejladser(); // Opdater listen
+            })
+            .catch(error => console.error("Fejl ved sletning af alle kapsejladser:", error));
+    }
+});
+
+
 
 
 function toggleSection(sectionId) {
